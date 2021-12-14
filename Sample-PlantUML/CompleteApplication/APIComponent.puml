@@ -3,33 +3,36 @@
 !define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
 !define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
 !define DEVICONS2 https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons2
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.4.0
 
 !include DEVICONS/angular.puml
 !include DEVICONS/mysql.puml
 !include FONTAWESOME/users.puml
 !include FONTAWESOME/user.puml
 !include DEVICONS2/typescript.puml
+!includeurl ICONURL/common.puml
+!includeurl ICONURL/devicons2/angularjs.puml
+!includeurl ICONURL/devicons2/csharp.puml
+!includeurl ICONURL/devicons2/mysql.puml
 
+skinparam defaultTextAlignment center
 
-System_Boundary(spa, "Single Page Application") {
- 
-   Container(loginPage, "Login Page", "User can login using correct credentials, Reset Password", $sprite="angular")
-  Container(adminSystem, "Administrator System", "Admin can create and manage user's login access", $sprite="angular")
-   Container(invoiceSystem, "Invoice System", "Manage Invoice and Client", $sprite="angular")
-   Container(payrollSystem, "Employee & Payroll Management System", "Onboard Employee, and create monthly Payroll", $sprite="angular")
-}
+Person(users, "User", "Authorized Users", $sprite="users")
+Container(spa, "SPA", "angular", "The main interface that the customer interacts with", $sprite="angularjs")
 
 System_Boundary(api, "API Application") {
-  Container(login, "Log In Controller", "ASP.NET,C#", "Function: Login, Logout, Reset Password")
-
+  
  System_Boundary(invoiceApi, "Invoice API Application") {
   Container(client, "Client Controller", "ASP.NET,C#", "Function: CRUD operations on Client data")
   Container(invoice, "Invoice Controller", "ASP.NET,C#", "Function: CRUD operations on Invoice data")
   Container(invoiceTemplate, "Invoice Component", "C#", "Create Invoice template with data")
  }
 
- Container(admin, "Admin Controller", "ASP.NET,C#", "Function: CRUD operations on User data")
- Container(employee, "Employee Controller", "ASP.NET,C#", "Function: CRUD operations on Employee & Payroll data") 
+ System_Boundary(usermgmtAPI, "UserManagement") {
+  Container(login, "Log In Controller", "ASP.NET,C#", "Function: Login, Logout, Reset Password")
+   Container(admin, "Admin Controller", "ASP.NET,C#", "Function: CRUD operations on User data")
+   Container(employee, "Employee Controller", "ASP.NET,C#", "Function: CRUD operations on Employee & Payroll data") 
+   }
  
  System_Boundary(sharedComponent, "Shared Component") {
   Container(email, "Email Component", "C#", "Create Email body and send to ToEmail Address")
@@ -37,46 +40,10 @@ System_Boundary(api, "API Application") {
   Container(storage, "S3 bucket Component", "C#", "Read/Write files into S3 bucket.")
  }
 }
-
-Container(payrollJob, "Monthly Job to create Payroll ExcelSheet", ".NET,C#", "Run Monthly and creates excel sheet")
-
 ContainerDb(database, "Database", "MySQL", "Stores User, Invoice, Client, Employee & Payroll data", $sprite="mysql")
-Container(s3bucket, "S3 Bucket", "AWS", "Store files")
+Rel_D(users,spa,"Uses")
+Rel_D(spa,usermgmtAPI,"Uses")
+Rel_R(api,database,"Uses")
 
-/'Relation Login'/
-Rel(loginPage, login, "Make API calls", "JSON/HTTPS");
-Rel(login, email, "Uses")
-
-/'Relation Invoice'/
-Rel(invoiceSystem, client, "Make API Calls", "JSON/HTTPS")
-Rel(invoiceSystem, invoice, "Make API Calls", "JSON,HTTPS")
-Rel(invoice, email, "Uses to send invoice to client")
-Rel(invoice, invoiceTemplate, "Uses to create invoice")
-
-/'Relation Admin'/
-Rel(adminSystem, admin, "Make API Calls", "JSON,HTTPS")
-
-/'Relation Employee & Payroll'/
-Rel(payrollSystem, employee, "Make API Calls", "JSON,HTTPS" )
-
-/'Relation EFCore'/
-Rel(invoiceTemplate, efCore, "Read invoice data")
-Rel(invoice, efCore, "Write invoice data")
-Rel(email, efCore, "Read email data")
-Rel(login, efCore, "Read/Write User data")
-Rel(client, efCore, "Read/Write Client data")
-Rel(admin, efCore, "Read/Write User data")
-Rel(employee, efCore, "Read/Write Employee Data")
-
-Rel(efCore, database, "Read/Write")
-
-/'Relation Job'/
-Rel(payrollJob, database, "Read/Write")
-Rel(payrollJob, s3bucket, "Save Payroll Excel File")
-
-Rel(invoiceTemplate, storage, "Save invoice into S3 Bucket")
-Rel(email, storage, "Read email attachments")
-Rel(storage, s3bucket, "Read/Write files")
-Rel(employee, storage, "Get Payroll Excel")
 SHOW_LEGEND(true)
 @enduml
