@@ -20,7 +20,7 @@ FA5_DATABASE(db1,MySql,database,blue)
 
 Rel(users,spa,"Uses","[HTTPS]")
 Rel(spa,api,"Uses")
-Rel(api,db1,"Uses")
+Rel_R(api,db1,"Uses")
 
 SHOW_LEGEND(true)
 @enduml
