@@ -1,0 +1,36 @@
+@startuml app_context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+
+!include DEVICONS/angular.puml
+!include DEVICONS/mysql.puml
+!include FONTAWESOME/users.puml
+!include FONTAWESOME/user.puml
+LAYOUT_WITH_LEGEND()
+
+Person(users, "User", "Authorized users having access to Invoice System.", $sprite="users")
+
+System_Boundary(boundary, "Invoice, Employee and Payroll Management Application"){
+  Container(webApp, "Single Page Application", "Angular", "Provides interface to manage Access, Invoice, Employee and Payroll", $sprite="angular")
+  Container(middleWare, "Authorization Layer", "C#", "Authorize API requests ")
+  Container(api, "API", "ASP.NET, C#", "Provides founctionality to manage Access, Invoice, Employee, and Payroll")
+  ContainerDb(database, "DataBase", "MySQL", "Stores user, invoice, client, employee, payroll data", $sprite="mysql" )
+  Container(payrollJob, "Monthly Job to create Payroll ExcelSheet", ".NET,C#", "Run Monthly and creates excel sheet")
+}
+
+Container(s3bucket, "File Storage", "S3 Bucket", "Store Files")
+Container(log, "Log", "Store Logs created by Server")
+  
+Rel_D(users, webApp, "Manage Access to application, Invoice, Employee and their Payroll")
+Rel(webApp, middleWare, "Request/Response", "HTTPS")
+Rel(middleWare, api, "Request/Response", "HTTPS")
+Rel_L(api, database, "Read/Write")
+Rel(api, log, "Write Logs")
+Rel(api, s3bucket, "Read/Write files") 
+Rel(payrollJob, database, "Read/Write")
+Rel(payrollJob, s3bucket, "Save Payroll Excel File")
+Rel(payrollJob, log, "Write Logs")
+
+SHOW_LEGEND(true)
+@enduml

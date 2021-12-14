@@ -1,0 +1,13 @@
+@startuml app_context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+!include FONTAWESOME/users.puml
+LAYOUT_WITH_LEGEND()
+
+Person(users, "User", "Authorized Users", $sprite="users")
+Container(system, "Invoice And Employee Management Application", "Web Application", "Manage Invoice, Employee and Payroll")
+
+Rel(users, system, "Access and Manage Invoice, Employee, and Payroll")
+SHOW_LEGEND(true)
+@enduml

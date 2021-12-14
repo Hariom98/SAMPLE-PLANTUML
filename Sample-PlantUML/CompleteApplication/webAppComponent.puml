@@ -1,0 +1,68 @@
+@startuml ui_component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define DEVICONS2 https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons2
+
+!include DEVICONS/angular.puml
+!include DEVICONS/mysql.puml
+!include FONTAWESOME/users.puml
+!include FONTAWESOME/user.puml
+!include DEVICONS2/typescript.puml
+
+Person(staff, "User", "Authorized Users", $sprite="users")
+System_Boundary(spa, "Single Page Application") {
+ System_Boundary(spaLogin, "Login & App Navigation" ) {
+   Container(loginPage, "Login Page", "User can login using correct credentials, Reset Password", $sprite="angular")
+   Container(home, "Choose Application Page", "User will have to choose application", $sprite="angular")
+   Container(loginService, "Service", "Provide functionality to pages", $sprite="typescript")
+ }
+ 
+ System_Boundary(spaAdmin, "Admin System") {
+  Container(users, "Add/Update users", "Add new user/Edit existing user", $sprite="angular")
+  Container(viewUsers, "View Users page", "View all existing users", $sprite="angular")
+  Container(adminService, "Service", "Provide functionality to Admin Page", $sprite="typescript")
+ }
+
+ System_Boundary(spaInvoice, "Invoice System") {
+  Container(invoice, "Invoice Page", "Angular", "Create new Invoice", $sprite="angular")
+  Container(editInvoice, "Edit Invoice Page", "Angular", "Edit Invoice", $sprite="angular")
+  Container(viewInvoices, "View Invoice page", "Angular", "View/Download existing invoice, Send reminder", $sprite="angular")
+  Container(client, "Client Page", "Angular", "Add a Client", $sprite="angular")
+  Container(editClient, "Edit Client Page", "Angular", "Edit Client's detail", $sprite="angular")
+  Container(viewClient, "View Client Page", "Angular", "View existing clients detail", $sprite="angular")
+  Container(invoiceService, "Service", "Provide functionality to Invoice Pages", $sprite="typescript")
+ }
+
+ System_Boundary(spaPayroll, "Employee & Payroll System") {
+   Container(employee, "Employee Page", "Angular", "Onboard a new Employee", $sprite="angular")
+   Container(editEmployee, "Edit Employee Page", "Angular", "Update or Add new detail to existing Employee", $sprite="angular")
+   Container(payroll, "Paroll Page", "Angular", "Download Payroll", $sprite="angular")
+   Container(payrollService, "Service", "Provide functionality to Employee & Payroll Pages", $sprite="typescript")
+ }
+}
+
+Container(middleware, "Authorization Layer", "OAUTH2.0")
+Container(api, "API Application", "ASP.NET,C#")
+
+Container(payrollJob, "Monthly Job to create Payroll ExcelSheet", ".NET,C#", "Run Monthly and creates excel sheet")
+
+ContainerDb(database, "Database", "MySQL", "Stores User, Invoice, Client, Employee & Payroll data", $sprite="mysql")
+Container(s3bucket, "S3 Bucket", "AWS", "Store files")
+
+Rel_D(staff, loginPage, "Login to Application")
+
+Rel_D(loginService, middleware, "JSON/HTTPS", "Makes API Call")
+Rel_D(adminService, middleware, "JSON/HTTPS", "Makes API Call")
+Rel_D(invoiceService, middleware, "JSON/HTTPS", "Makes API Call")
+Rel_D(payrollService, middleware, "JSON/HTTPS", "Makes API Call")
+
+Rel_D(middleware, api, "Request/Response")
+Rel(api, database, "Read/Write")
+Rel(api, s3bucket, "Read/Write File")
+
+Rel(payrollJob, database, "Read/Write")
+Rel(payrollJob, s3bucket, "Save Payroll Excel File")
+
+SHOW_LEGEND(true)
+@enduml
